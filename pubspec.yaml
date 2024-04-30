@@ -1,0 +1,30 @@
+name: short_term_working_memory
+description: "Game featured in the cognitive tradeoff hypothesis by VSauce: https://www.youtube.com/watch?v=ktkjUjcZid0 Matsuzawa et al.: https://www.cell.com/current-biology/fulltext/S0960-9822(11)00788-3"
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.4 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  flutter_launcher_icons: ^0.13.1
+  flutter_lints: ^3.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: "AppIcon"
+  image_path: "assets/icon.jpg"
+  min_sdk_android: 21
+  remove_alpha_ios: true
