@@ -25,8 +25,8 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
-  int boxes = 5;
-  double waitTime = 2.0; // Time in seconds
+  int boxes = 6;
+  double waitTime = 0.5; // Time in seconds
   List<List<int>> topLeft = List.generate(32, (_) => [0, 0]);
   int wins = 0;
   int losses = 0;
@@ -46,140 +46,192 @@ class _GameScreenState extends State<GameScreen> {
     reset();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            if (!gameActive)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          onPressed: () => decrementValue('boxes'),
-                          icon: Icon(Icons.arrow_left, size: 30),
-                        ),
-                        Column(
-                          children: [
-                            Text(
-                              '${boxes} tiles',
-                              style: TextStyle(fontSize: 18), // tiles font size
-                            ),
-                            Container(
-                              width: 200,
-                              child: Slider(
-                                value: boxes.toDouble(),
-                                min: 1,
-                                max: 32,
-                                divisions: 31,
-                                onChanged: (value) => setState(() => boxes = value.toInt()),
-                                // activeColor: Colors.white70, // Set the active color to a darker shade of blue
-                                // inactiveColor: Colors.grey, // Set the inactive color to grey
-                              ),
-                            ),
-                          ],
-                        ),
-                        IconButton(
-                          onPressed: () => incrementValue('boxes'),
-                          icon: Icon(Icons.arrow_right, size: 30),
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.black, // Set background color to black
+    body: Padding(
+      padding: const EdgeInsets.all(20.0), // Add equal padding of 20 pixels
+      child: Stack(
+        // mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Align(
+            alignment: Alignment.topRight,
+            // Add an IconButton with a question mark icon
+            child: IconButton(
+              icon: Icon(Icons.help_outline, color: Colors.white), // Question mark icon
+              onPressed: () {
+                // Show dialog with a text message and an okay button
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      backgroundColor: Colors.black, // Dialog background color
+                      title: Text(
+                        'Limited-Hold Memory',
+                        style: TextStyle(color: Colors.white), // Dialog title text color
+                      ),
+                      content: Text(
+                        '\nSelect the number of tiles to appear and the duration they will stay visible. Tap the tiles in numerical order. '
+                        '\n\nThis game uses present working memory, which is theorized to have decreased in early hominids as an evolutionary tradeoff for complex language skills. However, human brains are large and adaptive.'
+                        '\n\nChimpanzees are reported to have performed 80% with 8 numbers at .21 seconds while humans scored up to 80% with 6 numbers at .21 seconds.',
+                        style: TextStyle(color: Colors.white), // Dialog content text color
+                      ),
+                      actions: <Widget>[
+                        // Okay button
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Close the dialog
+                          },
+                          child: Text(
+                            'Okay',
+                            style: TextStyle(color: Colors.white), // Button text color
+                          ),
                         ),
                       ],
-                    ),
-                    SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          onPressed: () => decrementValue('time'),
-                          icon: Icon(Icons.arrow_left, size: 30),
-                        ),
-                        Column(
-                          children: [
-                            Text(
-                              '${waitTime.toStringAsFixed(1)} seconds',
-                              style: TextStyle(fontSize: 18), // seconds font size
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          if (!gameActive)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: () => decrementValue('boxes'),
+                        icon: Icon(Icons.arrow_left, size: 30),
+                      ),
+                      Column(
+                        children: [
+                          Text(
+                            '${boxes} tiles',
+                            style: TextStyle(
+                              fontSize: 18, // tiles font size
+                              color: Colors.white, // Set text color to white
                             ),
-                            Container(
-                              width: 200,
-                              child: Slider(
-                                value: waitTime,
-                                min: 0.1,
-                                max: 10.0,
-                                divisions: 49,
-                                label: "${waitTime.toStringAsFixed(2)} sec",
-                                onChanged: (value) => setState(() => waitTime = value),
-                              ),
+                          ),
+                          Container(
+                            width: 200,
+                            child: Slider(
+                              value: boxes.toDouble(),
+                              min: 1,
+                              max: 32,
+                              divisions: 31,
+                              onChanged: (value) => setState(() => boxes = value.toInt()),
                             ),
-                          ],
-                        ),
-                        IconButton(
-                          onPressed: () => incrementValue('time'),
-                          icon: Icon(Icons.arrow_right, size: 30),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: startGame,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromRGBO(12, 57, 59, 1), // Set the background color to a darker shade of blue
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)), // Make the button round
-                        padding: EdgeInsets.symmetric(horizontal: 40, vertical: 10), // Increase padding for width
+                          ),
+                        ],
                       ),
-                      child: Text('Start', style: TextStyle(fontSize: 24, color: Colors.white70)), // adjust the text
-                    ),
-                  ],
-                ),
-              ),
-            if (gameActive)
-              GridView.builder(
-                shrinkWrap: true,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  childAspectRatio: 1,
-                ),
-                itemCount: 32,
-                itemBuilder: (context, index) {
-                  int tileNumber = getTileNumber(index);
-                  return GestureDetector(
-                    onTap: () => handleTap(index),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: tileNumber > 0 ? Colors.white : Colors.black,
-                        border: Border.all(color: Colors.black, width: 1), // Add border
+                      IconButton(
+                        onPressed: () => incrementValue('boxes'),
+                        icon: Icon(Icons.arrow_right, size: 30),
                       ),
-                      padding: EdgeInsets.all(4),
-                      child: Center(
-                        child: Text(
-                          showNumbers && tileNumber > 0 ? '$tileNumber' : '',
-                          style: TextStyle(fontSize: 32, color: Colors.black),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            if (!gameActive && (wins > 0 || losses > 0))
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: Text(
-                  wins > 0 ? 'Completed successfully in ${getElapsedTime()} seconds' : 'Failed in ${getElapsedTime()} seconds',
-                  style: TextStyle(
-                     fontSize: 18,
+                    ],
                   ),
-                ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: () => decrementValue('time'),
+                        icon: Icon(Icons.arrow_left, size: 30),
+                      ),
+                      Column(
+                        children: [
+                          Text(
+                            '${waitTime.toStringAsFixed(1)} seconds',
+                            style: TextStyle(
+                              fontSize: 18, // seconds font size
+                              color: Colors.white,
+                            ), // Set text color to white
+                          ),
+                          Container(
+                            width: 200,
+                            child: Slider(
+                              value: waitTime,
+                              min: 0.1,
+                              max: 10.0,
+                              divisions: 49,
+                              label: "${waitTime.toStringAsFixed(2)} sec",
+                              onChanged: (value) => setState(() => waitTime = value),
+                            ),
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        onPressed: () => incrementValue('time'),
+                        icon: Icon(Icons.arrow_right, size: 30),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: startGame,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromRGBO(12, 57, 59, 1), // Set the background color to a darker shade of blue
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)), // Make the button round
+                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 10), // Increase padding for width
+                    ),
+                    child: Text('Start', style: TextStyle(fontSize: 24, color: Colors.white70)), // adjust the text
+                  ),
+                  if (wins > 0 || losses > 0)
+                    Align(
+                      alignment: Alignment.center,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 20.0),
+                        child: Text(
+                          wins > 0 ? 'Completed successfully in ${getElapsedTime()} seconds' : 'Failed in ${getElapsedTime()} seconds',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
-          ],
-        ),
+            ),
+          if (gameActive)
+            GridView.builder(
+              shrinkWrap: true,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                childAspectRatio: 1,
+              ),
+              itemCount: 32,
+              itemBuilder: (context, index) {
+                int tileNumber = getTileNumber(index);
+                return GestureDetector(
+                  onTap: () => handleTap(index),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: tileNumber > 0 ? Colors.white : Colors.black,
+                      border: Border.all(color: Colors.black, width: 1), // Add border
+                    ),
+                    padding: EdgeInsets.all(4),
+                    child: Center(
+                      child: Text(
+                        showNumbers && tileNumber > 0 ? '$tileNumber' : '',
+                        style: TextStyle(fontSize: 32, color: Colors.black),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   String getElapsedTime() => ((DateTime.now().millisecondsSinceEpoch - startTime) / 1000.0).toStringAsFixed(2);
 
